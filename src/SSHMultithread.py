@@ -7,7 +7,7 @@ from threading import Thread
 class SSHMultithread():
     #Constructor
     def __init__(self):
-        self.ip = None #test with ip 192.168.43.100, #string
+        self.ip = None #string
         self.password_file_dir = None #directory of desired password wordlist
         self.username_file_dir = None #directory of desired username wordlist
         self.password_list=[] #extract from directory, load into password queue
