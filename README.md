@@ -6,4 +6,6 @@ This program performs SSH BruteForce using multithread with paramiko.
 2. The default value of MaxStartups 10:30:100 in etc/ssh/sshd_config in the target machine allows for maximum 5 threads before the code starts throwing exception.
 
 # Usage
+$ python3 SSHMultithread.py --help
+
 SSHMultithread.py [-h] ip [threads] [passwords] [usernames]
